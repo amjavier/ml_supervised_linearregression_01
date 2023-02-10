@@ -3,7 +3,7 @@
 
 # ### Dependencies
 
-# In[61]:
+# In[62]:
 
 
 import pandas as pd
@@ -20,7 +20,7 @@ from sklearn.pipeline import Pipeline
 
 # Export dependencies list and overwrite requirements.txt with --force
 get_ipython().system(' jupyter nbconvert --output-dir="./requirements" --to script C:\\datascience\\ml_supervised_linearregression_01\\RegressionModel_LinearRegression_Example.ipynb')
-get_ipython().system(' cd reqs')
+get_ipython().system(' cd requirements')
 get_ipython().system(' pipreqs --force')
 
 
