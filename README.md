@@ -1,11 +1,13 @@
 # Weather as a Predictor of Bike Rentals
 
+### Please review [RegressionModel_LinearRegression_Example.ipynb](https://github.com/amjavier/ml_supervised_linearregression_01/blob/master/RegressionModel_LinearRegression_Example.ipynb) for full details of the analysis. 
+
 ### Summary
 Explore if a linear regression supervised machine learning model is a good fit to determine if weather is a good predictor of bike rentals in a hypothetical local business.
 
 ### Analysis
 1. **Data Collection**
-   * The initial review of the dataset shows that temperature, humidity, and windspeed could be used as predictors for the target variable rentals.
+   * The initial review of the dataset shows that 'temperature', 'humidity', and 'windspeed' could be used as predictors for the target variable 'rentals'.
 2. **Data Exploration**
    * For all 3 independent variables only 1 record for windspeed appears to be an outlier.
    * Lack of Multicollinearity (Linear Regression Assumption 1 of 5): A significant positive association of 0.8998 between the independent (X) variables only exists between windspeed and humidity. The rest of the associations between the independent variables are very weak. Nevertheless, I was able to build an accurate model as will be reflected in the next steps.
