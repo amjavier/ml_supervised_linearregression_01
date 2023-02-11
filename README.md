@@ -1,6 +1,6 @@
 # Weather as a Predictor of Bike Rentals
 
-#### Please review the [Jupyter Notebook](https://github.com/amjavier/ml_supervised_linearregression_01/blob/master/RegressionModel_LinearRegression_Example.ipynb) file for full details of the analysis. 
+#### * Please review the [Jupyter Notebook](https://github.com/amjavier/ml_supervised_linearregression_01/blob/master/RegressionModel_LinearRegression_Example.ipynb) file for full details of the analysis. 
 
 ### Summary
 Explore if a linear regression supervised machine learning model is a good fit to determine if weather is a good predictor of bike rentals in a hypothetical local business.
