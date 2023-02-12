@@ -3,7 +3,7 @@
 
 # ### Dependencies
 
-# In[62]:
+# In[63]:
 
 
 import pandas as pd
@@ -27,7 +27,7 @@ get_ipython().system(' pipreqs --force')
 # ## <span style='background: lightblue'> 1. Data Collection </span>
 # Load sample dataset. Shape: 731 rows x 4 columns
 
-# In[2]:
+# In[64]:
 
 
 # Initial view of the dataset shows that temperature, humidity, and windspeed could be used as predictors for the target variable rentals.
@@ -37,34 +37,34 @@ bikes_df
 
 # ## <span style='background: lightblue'> 2. Data Exploration </span>
 
-# In[3]:
+# In[65]:
 
 
 # None of the variables have a string type. No need to convert variable(s) to number to build the linear regression model.
 bikes_df.info()
 
 
-# In[4]:
+# In[66]:
 
 
 bikes_df.describe()
 
 
-# In[5]:
+# In[67]:
 
 
 # Check for outliers
 bikes_df['temperature'].plot.box(figsize = (5, 5))
 
 
-# In[6]:
+# In[68]:
 
 
 # Check for outliers
 bikes_df['humidity'].plot.box(figsize = (5, 5))
 
 
-# In[7]:
+# In[69]:
 
 
 # Check for outliers
@@ -76,7 +76,7 @@ bikes_df['windspeed'].plot.box(figsize = (5, 5))
 # ### <span style='background: lightgrey'>Linear Regression Assumption 1 of 5: Lack of Multicollinearity</span>
 # The predictors should not be correlated to one another. The smaller the coefficient the smaller the correlation between 2 variables. 1 means a perfect positive correlation, 0 equals no correlation, and -1 means a perfect negative correlation.
 
-# In[8]:
+# In[70]:
 
 
 # For linear regression to work the features (X predictors) should be independent of each other. 
@@ -85,7 +85,7 @@ bikes_df['windspeed'].plot.box(figsize = (5, 5))
 bikes_df.corr()
 
 
-# In[9]:
+# In[71]:
 
 
 # Visualize the lack of multicollinearity
@@ -112,7 +112,7 @@ ax.tick_params(axis='both', which='major', labelsize=10)
 print("A significant positive association of 0.8998 between the independent (X) variables only exists between windspeed and humidity. The rest of the associations between the independent variables are very weak. Later we'll see what effect this may have in the accuracy of the model.")
 
 
-# In[10]:
+# In[72]:
 
 
 # The scatter plot below confirms the high positive association between windspeed and humidity as shown in the Pearson correlation coefficient results.
@@ -122,7 +122,7 @@ bikes_df.plot(kind="scatter", x="windspeed", y="humidity")
 # ### <span style='background: lightgrey'>Linear Regression Assumption 2(a) of 5: Linearity (before running regression)</span>
 # Check if there is a linear relationship between y (dependent) and each X (independent) variable. A linear relationship is required for linear relationship models.
 
-# In[11]:
+# In[73]:
 
 
 # LINEARITY check
@@ -130,21 +130,21 @@ bikes_df.plot(kind="scatter", x="windspeed", y="humidity")
 bikes_df.plot(kind="scatter", x="temperature", y="rentals")
 
 
-# In[12]:
+# In[74]:
 
 
 # LINEARITY check
 bikes_df.plot(kind="scatter", x="humidity", y="rentals")
 
 
-# In[13]:
+# In[75]:
 
 
 # LINEARITY check
 bikes_df.plot(kind="scatter", x="windspeed", y="rentals")
 
 
-# In[14]:
+# In[76]:
 
 
 #### Linearity results: All 3 independent variables appear to have a linear tendency.
@@ -153,7 +153,7 @@ bikes_df.plot(kind="scatter", x="windspeed", y="rentals")
 # ## <span style='background: lightblue'>3. Data Preparation</span>
 # Split dataset into y (output, target) y and X (input, features) variables
 
-# In[15]:
+# In[77]:
 
 
 # y dependent (target) variable
@@ -162,7 +162,7 @@ y = bikes_df[[output_var]]
 y
 
 
-# In[16]:
+# In[78]:
 
 
 # X independent (feature) variable
@@ -172,7 +172,7 @@ X = bikes_df[input_vars] # assign new data frame to X
 X
 
 
-# In[17]:
+# In[79]:
 
 
 # Run K-fold cross-validation on the full dataset
@@ -195,7 +195,7 @@ print(
 )
 
 
-# In[18]:
+# In[80]:
 
 
 # Split data between training and test sets
@@ -206,7 +206,7 @@ print(
 X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 1234)
 
 
-# In[19]:
+# In[81]:
 
 
 # Check the resulting dimensions of all 4 tables
@@ -216,7 +216,7 @@ print("Test set (X, y): ", X_test.shape, y_test.shape)
 
 # ## <span style='background: lightblue'>4. Train the Model (w/ train dataset)</span>
 
-# In[20]:
+# In[82]:
 
 
 model.fit(X_train, y_train) # LinearRegression() has an optional argument to normalize the data
@@ -224,7 +224,7 @@ model.fit(X_train, y_train) # LinearRegression() has an optional argument to nor
 print("The model was fitted.")
 
 
-# In[21]:
+# In[83]:
 
 
 # Estimate of the y-intercept
@@ -233,7 +233,7 @@ print("The model was fitted.")
 model.intercept_
 
 
-# In[22]:
+# In[84]:
 
 
 # Estimate of the slope
@@ -256,7 +256,7 @@ model.coef_
 
 # ## <span style='background: lightblue'>5. Evaluate the Model (test dataset)</span>
 
-# In[23]:
+# In[85]:
 
 
 # Calculate r2
@@ -278,7 +278,7 @@ print(
 # Both r2 results were very similar which support the accuracy of the model.
 
 
-# In[24]:
+# In[86]:
 
 
 # Compare predicted values versus the actual values
@@ -290,7 +290,7 @@ y_predicted = model.predict(X_test)
 mean_absolute_error(y_test, y_predicted) # The predictions of the model should be off the mark by an average of +/- the result
 
 
-# In[25]:
+# In[87]:
 
 
 # Concatenate the X and y variables in a data frame for visualization purposes
@@ -300,7 +300,7 @@ pd.concat([X_test, y_test], axis=1).reset_index()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 2(b) of 5: Linearity (after running regression)</span>
 # Check if there is a linear relationship between y_test and y_prediction
 
-# In[26]:
+# In[88]:
 
 
 # LINEARITY check prep for next step
@@ -312,7 +312,7 @@ y_predicted_df = pd.DataFrame(y_predicted, columns=["rentals"])
 y_predicted_df
 
 
-# In[27]:
+# In[89]:
 
 
 # Append y_predicted column to original test set to review results
@@ -325,7 +325,7 @@ results_df = results.rename(columns={'rentals':'y_test'})
 results_df
 
 
-# In[28]:
+# In[90]:
 
 
 # LINEARITY check
@@ -353,7 +353,7 @@ print("There are appears to be a linear relationship between y_predicted and y_t
 # ### <span style='background: lightgrey'>Linear Regression Assumption 3 of 5: Multivariate Normality</span>
 # Check the normality of error distribution
 
-# In[29]:
+# In[91]:
 
 
 # Performing the test on the residuals
@@ -383,7 +383,7 @@ print('Normally distributed residuals support the use of a linear regression mod
 # ### <span style='background: lightgrey'>Linear Regression Assumption 4 of 5: Homoscedasticity</span>
 # Uniform variance for the residuals (prediction errors) of all data points
 
-# In[30]:
+# In[92]:
 
 
 # Review residuals and make sure the results make sense
@@ -392,7 +392,7 @@ results_df['residuals'] = residuals
 results_df
 
 
-# In[31]:
+# In[93]:
 
 
 # Plotting the residuals
@@ -412,7 +412,7 @@ plt.show()
 print("The purpose of this graph is to show where residuals tend to concentrate. Residuals (prediction errors) should concentrate around the X-axis and be uniform.")
 
 
-# In[32]:
+# In[94]:
 
 
 results_df.describe()
@@ -421,7 +421,7 @@ results_df.describe()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 5 of 5: Independence of Observations<span>
 # Check for no autocorrelation of residuals (errors) over time
 
-# In[33]:
+# In[95]:
 
 
 durbinWatson = durbin_watson(residuals)
@@ -438,7 +438,7 @@ else:
     print('Assumption satisfied')
 
 
-# In[34]:
+# In[96]:
 
 
 # Lasso regression
@@ -487,7 +487,7 @@ print("The most important predictor, which the largest absolute value of the coe
 
 # ## Next Steps
 # 
-# Remove the random_state arguments where required, deploy model into production, and re-check results.
+# Remove the random_state arguments, deploy model into production, and re-check results.
 
 # In[ ]:
 
