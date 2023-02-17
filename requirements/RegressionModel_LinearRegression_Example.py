@@ -10,7 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np 
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
-from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.linear_model import Lasso # , LinearRegression 
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import seaborn as sns
 from statsmodels.stats.diagnostic import normal_ad
@@ -172,7 +172,7 @@ X = bikes_df[input_vars] # assign new data frame to X
 X
 
 
-# In[17]:
+# In[54]:
 
 
 # Run K-fold cross-validation on the full dataset
@@ -184,7 +184,7 @@ X = bikes_df[input_vars]
 y = bikes_df[[output_var]]
 
 kf = KFold(n_splits=5, shuffle=True, random_state = 42) # random_state argument makes the results repeatable; # random_state = 42 will be removed in production
-model = LinearRegression()
+model = Lasso(alpha=0.1) # choose the alpha hyperparameter based on the model evaluation results in Step #5 to increase accuracy
 cv_results = cross_val_score(model, X, y, cv=kf) # returns array of cross-validation scores
 print(
     "r2 array: ", cv_results, '\n'
@@ -195,7 +195,7 @@ print(
 )
 
 
-# In[18]:
+# In[45]:
 
 
 # Split data between training and test sets
@@ -206,7 +206,7 @@ print(
 X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 1234)
 
 
-# In[19]:
+# In[46]:
 
 
 # Check the resulting dimensions of all 4 tables
@@ -216,7 +216,7 @@ print("Test set (X, y): ", X_test.shape, y_test.shape)
 
 # ## <span style='background: lightblue'>4. Train the Model (w/ train dataset)</span>
 
-# In[20]:
+# In[47]:
 
 
 model.fit(X_train, y_train) # LinearRegression() has an optional argument to normalize the data
@@ -224,7 +224,7 @@ model.fit(X_train, y_train) # LinearRegression() has an optional argument to nor
 print("The model was fitted.")
 
 
-# In[21]:
+# In[48]:
 
 
 # Estimate of the y-intercept
@@ -233,7 +233,7 @@ print("The model was fitted.")
 model.intercept_
 
 
-# In[22]:
+# In[49]:
 
 
 # Estimate of the slope
@@ -256,7 +256,7 @@ model.coef_
 
 # ## <span style='background: lightblue'>5. Evaluate the Model (test dataset)</span>
 
-# In[23]:
+# In[50]:
 
 
 # Calculate r2
@@ -278,7 +278,7 @@ print(
 # Both r2 results were very similar which support the accuracy of the model.
 
 
-# In[24]:
+# In[51]:
 
 
 # Compare predicted values versus the actual values
@@ -290,7 +290,7 @@ y_predicted = model.predict(X_test)
 mean_absolute_error(y_test, y_predicted) # The predictions of the model should be off the mark by an average of +/- the result
 
 
-# In[25]:
+# In[52]:
 
 
 # Concatenate the X and y variables in a data frame for visualization purposes
@@ -358,7 +358,10 @@ print("There are appears to be a linear relationship between y_predicted and y_t
 
 # Performing the test on the residuals
 
-residuals = y_test - y_predicted
+print(y_test.shape)
+print(y_predicted.shape)
+
+residuals = y_test - y_predicted.reshape(183, 1) # .reshape used to shape from (183, ) to (183, 1)
 # Rename residual column
 residuals = residuals.rename(columns={'rentals':'residual'})
 
@@ -438,15 +441,10 @@ else:
     print('Assumption satisfied')
 
 
-# In[107]:
+# In[34]:
 
 
 # Lasso regression
-
-X = bikes_df[input_vars] # This line of code is here to prevent error in a later step, NOT needed for GridSearchCV
-y = bikes_df[[output_var]] # This line of code is here to prevent error in a later step, NOT needed for GridSearchCV
-
-features = X.columns
 
 pipeline = Pipeline(steps=[
     ('scaler', StandardScaler()), # StandardScaler makes the mean of the distribution 0. About 68% of the values will lie be between -1 and 1. Is used to resize the distribution of values ​​so that the mean of the observed values ​​is 0 and the standard deviation is 1.
@@ -460,19 +458,20 @@ search = GridSearchCV(pipeline,
 ) # verbose=0, to hide response in next step
 
 
-# In[108]:
+# In[35]:
 
 
 search.fit(X_train,y_train)
 
 
-# In[110]:
+# In[36]:
 
 
 alpha = search.best_params_
-print("The best value for alpha was: ", alpha) # Selected automatically in 'model__alpha':np.arange(0.1,10,0.1) or arbitrarily by 'model__alpha':[5] in the previous step
+print("The best value for alpha was: ", alpha) # Selected automatically in 'model__alpha':np.arange(0.1,10,0.1) in the previous step
+                                               # This value can be used to modify the alpha hyperparameter in Step #3 (data preparation section)
 
-# This value can be used to compare which alpha is performing better if we arbitrarily choose 'model__alpha':[some_number];  The closer to 0 MAE is the better
+# This value can be used to compare which alpha is performing better; The closer to 0 MAE is the better
 # MSE is more sensitive to outliers than MAE
 mse = search.best_score_
 print("Negative Mean Squared Error (-MSE) was: ", mse)
@@ -484,6 +483,9 @@ print("Asbolute value of coefficients: ", importance)
 #===============================
 #===============================
 # print(np.array(features))
+X = bikes_df[input_vars]
+y = bikes_df[[output_var]]
+features = X.columns
 print(np.array(features)[importance > 0])
 print(np.array(features)[importance == 0]) # If [] blank all features are important (no features equals 0)
 #===============================
