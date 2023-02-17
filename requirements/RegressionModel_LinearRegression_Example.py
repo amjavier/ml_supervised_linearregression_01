@@ -3,7 +3,7 @@
 
 # ### Dependencies
 
-# In[63]:
+# In[1]:
 
 
 import pandas as pd
@@ -27,7 +27,7 @@ get_ipython().system(' pipreqs --force')
 # ## <span style='background: lightblue'> 1. Data Collection </span>
 # Load sample dataset. Shape: 731 rows x 4 columns
 
-# In[64]:
+# In[2]:
 
 
 # Initial view of the dataset shows that temperature, humidity, and windspeed could be used as predictors for the target variable rentals.
@@ -37,34 +37,34 @@ bikes_df
 
 # ## <span style='background: lightblue'> 2. Data Exploration </span>
 
-# In[65]:
+# In[3]:
 
 
 # None of the variables have a string type. No need to convert variable(s) to number to build the linear regression model.
 bikes_df.info()
 
 
-# In[66]:
+# In[4]:
 
 
 bikes_df.describe()
 
 
-# In[67]:
+# In[5]:
 
 
 # Check for outliers
 bikes_df['temperature'].plot.box(figsize = (5, 5))
 
 
-# In[68]:
+# In[6]:
 
 
 # Check for outliers
 bikes_df['humidity'].plot.box(figsize = (5, 5))
 
 
-# In[69]:
+# In[7]:
 
 
 # Check for outliers
@@ -76,7 +76,7 @@ bikes_df['windspeed'].plot.box(figsize = (5, 5))
 # ### <span style='background: lightgrey'>Linear Regression Assumption 1 of 5: Lack of Multicollinearity</span>
 # The predictors should not be correlated to one another. The smaller the coefficient the smaller the correlation between 2 variables. 1 means a perfect positive correlation, 0 equals no correlation, and -1 means a perfect negative correlation.
 
-# In[70]:
+# In[8]:
 
 
 # For linear regression to work the features (X predictors) should be independent of each other. 
@@ -85,7 +85,7 @@ bikes_df['windspeed'].plot.box(figsize = (5, 5))
 bikes_df.corr()
 
 
-# In[71]:
+# In[9]:
 
 
 # Visualize the lack of multicollinearity
@@ -112,7 +112,7 @@ ax.tick_params(axis='both', which='major', labelsize=10)
 print("A significant positive association of 0.8998 between the independent (X) variables only exists between windspeed and humidity. The rest of the associations between the independent variables are very weak. Later we'll see what effect this may have in the accuracy of the model.")
 
 
-# In[72]:
+# In[10]:
 
 
 # The scatter plot below confirms the high positive association between windspeed and humidity as shown in the Pearson correlation coefficient results.
@@ -122,7 +122,7 @@ bikes_df.plot(kind="scatter", x="windspeed", y="humidity")
 # ### <span style='background: lightgrey'>Linear Regression Assumption 2(a) of 5: Linearity (before running regression)</span>
 # Check if there is a linear relationship between y (dependent) and each X (independent) variable. A linear relationship is required for linear relationship models.
 
-# In[73]:
+# In[11]:
 
 
 # LINEARITY check
@@ -130,30 +130,30 @@ bikes_df.plot(kind="scatter", x="windspeed", y="humidity")
 bikes_df.plot(kind="scatter", x="temperature", y="rentals")
 
 
-# In[74]:
+# In[12]:
 
 
 # LINEARITY check
 bikes_df.plot(kind="scatter", x="humidity", y="rentals")
 
 
-# In[75]:
+# In[13]:
 
 
 # LINEARITY check
 bikes_df.plot(kind="scatter", x="windspeed", y="rentals")
 
 
-# In[76]:
+# In[14]:
 
 
 #### Linearity results: All 3 independent variables appear to have a linear tendency.
 
 
 # ## <span style='background: lightblue'>3. Data Preparation</span>
-# Split dataset into y (output, target) y and X (input, features) variables
+# Split dataset into y (output, target) and X (input, features) variables
 
-# In[77]:
+# In[15]:
 
 
 # y dependent (target) variable
@@ -162,7 +162,7 @@ y = bikes_df[[output_var]]
 y
 
 
-# In[78]:
+# In[16]:
 
 
 # X independent (feature) variable
@@ -172,7 +172,7 @@ X = bikes_df[input_vars] # assign new data frame to X
 X
 
 
-# In[79]:
+# In[17]:
 
 
 # Run K-fold cross-validation on the full dataset
@@ -195,7 +195,7 @@ print(
 )
 
 
-# In[80]:
+# In[18]:
 
 
 # Split data between training and test sets
@@ -206,7 +206,7 @@ print(
 X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 1234)
 
 
-# In[81]:
+# In[19]:
 
 
 # Check the resulting dimensions of all 4 tables
@@ -216,7 +216,7 @@ print("Test set (X, y): ", X_test.shape, y_test.shape)
 
 # ## <span style='background: lightblue'>4. Train the Model (w/ train dataset)</span>
 
-# In[82]:
+# In[20]:
 
 
 model.fit(X_train, y_train) # LinearRegression() has an optional argument to normalize the data
@@ -224,7 +224,7 @@ model.fit(X_train, y_train) # LinearRegression() has an optional argument to nor
 print("The model was fitted.")
 
 
-# In[83]:
+# In[21]:
 
 
 # Estimate of the y-intercept
@@ -233,7 +233,7 @@ print("The model was fitted.")
 model.intercept_
 
 
-# In[84]:
+# In[22]:
 
 
 # Estimate of the slope
@@ -256,7 +256,7 @@ model.coef_
 
 # ## <span style='background: lightblue'>5. Evaluate the Model (test dataset)</span>
 
-# In[85]:
+# In[23]:
 
 
 # Calculate r2
@@ -278,7 +278,7 @@ print(
 # Both r2 results were very similar which support the accuracy of the model.
 
 
-# In[86]:
+# In[24]:
 
 
 # Compare predicted values versus the actual values
@@ -290,7 +290,7 @@ y_predicted = model.predict(X_test)
 mean_absolute_error(y_test, y_predicted) # The predictions of the model should be off the mark by an average of +/- the result
 
 
-# In[87]:
+# In[25]:
 
 
 # Concatenate the X and y variables in a data frame for visualization purposes
@@ -300,7 +300,7 @@ pd.concat([X_test, y_test], axis=1).reset_index()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 2(b) of 5: Linearity (after running regression)</span>
 # Check if there is a linear relationship between y_test and y_prediction
 
-# In[88]:
+# In[26]:
 
 
 # LINEARITY check prep for next step
@@ -312,7 +312,7 @@ y_predicted_df = pd.DataFrame(y_predicted, columns=["rentals"])
 y_predicted_df
 
 
-# In[89]:
+# In[27]:
 
 
 # Append y_predicted column to original test set to review results
@@ -325,7 +325,7 @@ results_df = results.rename(columns={'rentals':'y_test'})
 results_df
 
 
-# In[90]:
+# In[28]:
 
 
 # LINEARITY check
@@ -353,7 +353,7 @@ print("There are appears to be a linear relationship between y_predicted and y_t
 # ### <span style='background: lightgrey'>Linear Regression Assumption 3 of 5: Multivariate Normality</span>
 # Check the normality of error distribution
 
-# In[91]:
+# In[29]:
 
 
 # Performing the test on the residuals
@@ -383,7 +383,7 @@ print('Normally distributed residuals support the use of a linear regression mod
 # ### <span style='background: lightgrey'>Linear Regression Assumption 4 of 5: Homoscedasticity</span>
 # Uniform variance for the residuals (prediction errors) of all data points
 
-# In[92]:
+# In[30]:
 
 
 # Review residuals and make sure the results make sense
@@ -392,7 +392,7 @@ results_df['residuals'] = residuals
 results_df
 
 
-# In[93]:
+# In[31]:
 
 
 # Plotting the residuals
@@ -412,7 +412,7 @@ plt.show()
 print("The purpose of this graph is to show where residuals tend to concentrate. Residuals (prediction errors) should concentrate around the X-axis and be uniform.")
 
 
-# In[94]:
+# In[32]:
 
 
 results_df.describe()
@@ -421,7 +421,7 @@ results_df.describe()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 5 of 5: Independence of Observations<span>
 # Check for no autocorrelation of residuals (errors) over time
 
-# In[95]:
+# In[33]:
 
 
 durbinWatson = durbin_watson(residuals)
@@ -438,29 +438,44 @@ else:
     print('Assumption satisfied')
 
 
-# In[96]:
+# In[107]:
 
 
 # Lasso regression
 
-X = bikes_df[input_vars]
-y = bikes_df[[output_var]]
+X = bikes_df[input_vars] # This line of code is here to prevent error in a later step, NOT needed for GridSearchCV
+y = bikes_df[[output_var]] # This line of code is here to prevent error in a later step, NOT needed for GridSearchCV
 
 features = X.columns
 
-pipeline = Pipeline([
-    ('scaler', StandardScaler()),
+pipeline = Pipeline(steps=[
+    ('scaler', StandardScaler()), # StandardScaler makes the mean of the distribution 0. About 68% of the values will lie be between -1 and 1. Is used to resize the distribution of values ​​so that the mean of the observed values ​​is 0 and the standard deviation is 1.
     ('model', Lasso())
 ])
 
+# IMPORTANT: There is no point in picking alpha = 0 ('model__alpha' = 0), that is simply the linear regression.
 search = GridSearchCV(pipeline,
                       {'model__alpha':np.arange(0.1,10,0.1)}, # test several values from 0.1 to 10 with 0.1 step. For each value, we calculate the average value of the mean squared error in a 5-folds cross-validation and select the value of α that minimizes such average performance metrics
                       cv = 5, scoring="neg_mean_squared_error",verbose=0
-)
+) # verbose=0, to hide response in next step
+
+
+# In[108]:
+
 
 search.fit(X_train,y_train)
+
+
+# In[110]:
+
+
 alpha = search.best_params_
-print("The best value for alpha is: ", alpha)
+print("The best value for alpha was: ", alpha) # Selected automatically in 'model__alpha':np.arange(0.1,10,0.1) or arbitrarily by 'model__alpha':[5] in the previous step
+
+# This value can be used to compare which alpha is performing better if we arbitrarily choose 'model__alpha':[some_number];  The closer to 0 MAE is the better
+# MSE is more sensitive to outliers than MAE
+mse = search.best_score_
+print("Negative Mean Squared Error (-MSE) was: ", mse)
 
 coefficients = search.best_estimator_.named_steps['model'].coef_
 importance = np.abs(coefficients)
@@ -468,10 +483,9 @@ print("Asbolute value of coefficients: ", importance)
 
 #===============================
 #===============================
-print(np.array(features))
-# np.array(features)[importance > 0]
-# np.array(features)[importance == 0]
-
+# print(np.array(features))
+print(np.array(features)[importance > 0])
+print(np.array(features)[importance == 0]) # If [] blank all features are important (no features equals 0)
 #===============================
 #===============================
 _ = plt.plot(range(len(features)), importance)
@@ -488,9 +502,3 @@ print("The most important predictor, which the largest absolute value of the coe
 # ## Next Steps
 # 
 # Remove the random_state arguments, deploy model into production, and re-check results.
-
-# In[ ]:
-
-
-
-
