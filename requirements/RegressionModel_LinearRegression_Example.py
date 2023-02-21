@@ -172,7 +172,7 @@ X = bikes_df[input_vars] # assign new data frame to X
 X
 
 
-# In[54]:
+# In[17]:
 
 
 # Run K-fold cross-validation on the full dataset
@@ -195,7 +195,7 @@ print(
 )
 
 
-# In[45]:
+# In[18]:
 
 
 # Split data between training and test sets
@@ -206,7 +206,7 @@ print(
 X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 1234)
 
 
-# In[46]:
+# In[19]:
 
 
 # Check the resulting dimensions of all 4 tables
@@ -216,7 +216,7 @@ print("Test set (X, y): ", X_test.shape, y_test.shape)
 
 # ## <span style='background: lightblue'>4. Train the Model (w/ train dataset)</span>
 
-# In[47]:
+# In[20]:
 
 
 model.fit(X_train, y_train) # LinearRegression() has an optional argument to normalize the data
@@ -224,7 +224,7 @@ model.fit(X_train, y_train) # LinearRegression() has an optional argument to nor
 print("The model was fitted.")
 
 
-# In[48]:
+# In[21]:
 
 
 # Estimate of the y-intercept
@@ -233,7 +233,7 @@ print("The model was fitted.")
 model.intercept_
 
 
-# In[49]:
+# In[22]:
 
 
 # Estimate of the slope
@@ -256,7 +256,7 @@ model.coef_
 
 # ## <span style='background: lightblue'>5. Evaluate the Model (test dataset)</span>
 
-# In[50]:
+# In[23]:
 
 
 # Calculate r2
@@ -278,7 +278,7 @@ print(
 # Both r2 results were very similar which support the accuracy of the model.
 
 
-# In[51]:
+# In[24]:
 
 
 # Compare predicted values versus the actual values
@@ -290,7 +290,7 @@ y_predicted = model.predict(X_test)
 mean_absolute_error(y_test, y_predicted) # The predictions of the model should be off the mark by an average of +/- the result
 
 
-# In[52]:
+# In[25]:
 
 
 # Concatenate the X and y variables in a data frame for visualization purposes
