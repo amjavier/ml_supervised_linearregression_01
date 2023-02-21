@@ -16,7 +16,7 @@ import seaborn as sns
 from statsmodels.stats.diagnostic import normal_ad
 from statsmodels.stats.stattools import durbin_watson
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 
 # Export dependencies list and overwrite requirements.txt with --force
 get_ipython().system(' jupyter nbconvert --output-dir="./requirements" --to script C:\\datascience\\ml_supervised_linearregression_01\\RegressionModel_LinearRegression_Example.ipynb')
@@ -180,12 +180,17 @@ X
 # On this case the dataset is split into 5 groups (fold) specified by n_splits = 5
 # Each split contains 1 test data fold and 4 training data folds. The model is fit on the 4 training folds and the prediction is based on the remaining test fold. In each of the 5 iterations the test group (fold) is a different one.
 
-X = bikes_df[input_vars]
-y = bikes_df[[output_var]]
+# X = bikes_df[input_vars]
+# y = bikes_df[[output_var]]
 
 kf = KFold(n_splits=5, shuffle=True, random_state = 42) # random_state argument makes the results repeatable; # random_state = 42 will be removed in production
-model = Lasso(alpha=0.1) # choose the alpha hyperparameter based on the model evaluation results in Step #5 to increase accuracy
-cv_results = cross_val_score(model, X, y, cv=kf) # returns array of cross-validation scores
+# choose the alpha hyperparameter based on the model evaluation results in Step #5 to increase accuracy
+# StandardScaler() is used to normalize the data; normalize=True is deprecated hence using StandardScaler()
+pipelineA = Pipeline([
+    ('scaler', StandardScaler()), # Not required here?
+    ('model', Lasso(alpha=0.1))
+])
+cv_results = cross_val_score(pipelineA, X, y, cv=kf) # returns array of cross-validation scores
 print(
     "r2 array: ", cv_results, '\n'
     "Mean of r2: ", np.mean(cv_results), '\n'
@@ -209,54 +214,96 @@ X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 1234)
 # In[19]:
 
 
-# Check the resulting dimensions of all 4 tables
-print("Training set (X, y): ", X_train.shape, y_train.shape) 
-print("Test set (X, y): ", X_test.shape, y_test.shape)
+X_train_scaled = pipelineA.named_steps['scaler'].fit_transform(X_train) 
+# or if pipelineA.fit(X_train, y_train) is used then .fit_transform(X_train) (this step) and the following .transform(X_test) can be omitted
+# X_train_scaled[:5]
 
-
-# ## <span style='background: lightblue'>4. Train the Model (w/ train dataset)</span>
 
 # In[20]:
 
 
-model.fit(X_train, y_train) # LinearRegression() has an optional argument to normalize the data
-
-print("The model was fitted.")
+# After scaling the standard deviation will be 1 and the mean of X will be as close to 0 as possible
+print('X_train_scaled', 'shape:', X_train_scaled.shape, '\n', 'mean:', X_train_scaled.mean(axis=0), '\n', 'std:', X_train_scaled.std(axis=0))
 
 
 # In[21]:
 
 
-# Estimate of the y-intercept
-
-# y-intercept
-model.intercept_
+X_test_scaled = pipelineA.named_steps['scaler'].transform(X_test) # step required if fit_transform was used on X_train set
+# X_test_scaled[:5]
 
 
 # In[22]:
+
+
+# After scaling the standard deviation will be 1 and the mean of X will be as close to 0 as possible
+print('X_test_scaled', 'shape:', X_test_scaled.shape, '\n', 'mean:', X_test_scaled.mean(axis=0), '\n', 'std:', X_test_scaled.std(axis=0))
+
+
+# In[23]:
+
+
+# StandardScaler() attributes:
+# pipelineA.named_steps['scaler'].scale_
+# pipelineA.named_steps['scaler'].mean_
+# pipelineA.named_steps['scaler'].var_
+
+
+# In[24]:
+
+
+# Check the resulting dimensions of all 4 tables
+print("Training set (X, y): ", X_train.shape, y_train.shape) 
+print("Test set (X, y): ", X_test.shape, y_test.shape)
+
+
+# ## <span style='background: lightblue'>4. Train the Model (train dataset)</span>
+
+# In[25]:
+
+
+# model = Lasso(alpha=0.1)
+pipelineA.named_steps['model'].fit(X_train_scaled, y_train)
+
+print("The model was fitted.")
+
+
+# In[26]:
+
+
+# Estimate of the y-intercept
+
+# y-intercept
+pipelineA.named_steps['model'].intercept_
+
+
+# In[27]:
 
 
 # Estimate of the slope
 
 # slope (regression coefficient)
 # The slope results are listed in the order that they appear in the training data data frame. e.g., temperature, humidity, and windspeed
-model.coef_
+pipelineA.named_steps['model'].coef_
 
 
-# ###  Below is the estimated regression line that best fits the data. With this information we can estimate what our model will predict in any weather condition (X inputs). This is the equation that can be used in production if our evaluation of the model proves to be satisfactory.
-# 
-# #### y = m * X + b
-# 
-# #### y = m * X - m * X - m * X + b
-# #### y = (80.35 * X) - (-4665.74 * X) - (-196.22 * X) + 3800.68
-# 
-# #### e.g., If temp=72F, humidity=22%, windspeed=5mph
-# #### y = (80.35 * 72) - (-4665.74 * .22) - (-196.22 * 5) + 3800.68
-# #### = 7,578 rentals
+# In[28]:
+
+
+# StandardScaler() results in a distribution with a standard deviation equal to 1. The variance is equal to 1 also, because variance = standard deviation squared. And 1 squared = 1.
+# StandardScaler() makes the mean of the distribution 0. About 68% of the values will lie be between -1 and 1.
+df_scaled = pd.DataFrame(X_train_scaled, columns=['temperature','humidity','windspeed'])
+df_scaled
+
+# Visualize windspeed density before and after normalization
+sns.histplot(df_scaled['windspeed'], kde=True, stat='density', color='red')
+sns.histplot(bikes_df['windspeed'], kde=True, stat='density')
+plt.show()
+
 
 # ## <span style='background: lightblue'>5. Evaluate the Model (test dataset)</span>
 
-# In[23]:
+# In[29]:
 
 
 # Calculate r2
@@ -264,7 +311,7 @@ model.coef_
 # Score the predictions r2. The closer this value is to 1 the better the model is.
 # r2 = r2_score(y_test, y_predicted) 
 # r2 is alo called the coefficient of determination (measures accuracy)
-r2 = model.score(X_test, y_test)
+r2 = pipelineA.named_steps['model'].score(X_test_scaled, y_test)
 
 print(
     "r2: ", r2, "\n"
@@ -278,19 +325,22 @@ print(
 # Both r2 results were very similar which support the accuracy of the model.
 
 
-# In[24]:
+# In[30]:
 
 
 # Compare predicted values versus the actual values
 
 # Use our model to make predictions
-y_predicted = model.predict(X_test)
+y_predicted = pipelineA.named_steps['model'].predict(X_test_scaled)
+
+# y_predicted_inverse = pipelineA.named_steps['scaler'].inverse_transform(y_predicted.reshape(-1,1))
+
 
 # MAE (mean absolute error) 
 mean_absolute_error(y_test, y_predicted) # The predictions of the model should be off the mark by an average of +/- the result
 
 
-# In[25]:
+# In[31]:
 
 
 # Concatenate the X and y variables in a data frame for visualization purposes
@@ -300,7 +350,7 @@ pd.concat([X_test, y_test], axis=1).reset_index()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 2(b) of 5: Linearity (after running regression)</span>
 # Check if there is a linear relationship between y_test and y_prediction
 
-# In[26]:
+# In[32]:
 
 
 # LINEARITY check prep for next step
@@ -312,20 +362,20 @@ y_predicted_df = pd.DataFrame(y_predicted, columns=["rentals"])
 y_predicted_df
 
 
-# In[27]:
+# In[33]:
 
 
 # Append y_predicted column to original test set to review results
 
 results = pd.concat([X_test, y_test], axis=1).reset_index()
 
-results['y_predicted'] = y_predicted
+results['y_predicted'] = y_predicted_df
 results_df = results.rename(columns={'rentals':'y_test'})
 
 results_df
 
 
-# In[28]:
+# In[34]:
 
 
 # LINEARITY check
@@ -353,7 +403,7 @@ print("There are appears to be a linear relationship between y_predicted and y_t
 # ### <span style='background: lightgrey'>Linear Regression Assumption 3 of 5: Multivariate Normality</span>
 # Check the normality of error distribution
 
-# In[29]:
+# In[35]:
 
 
 # Performing the test on the residuals
@@ -386,7 +436,7 @@ print('Normally distributed residuals support the use of a linear regression mod
 # ### <span style='background: lightgrey'>Linear Regression Assumption 4 of 5: Homoscedasticity</span>
 # Uniform variance for the residuals (prediction errors) of all data points
 
-# In[30]:
+# In[36]:
 
 
 # Review residuals and make sure the results make sense
@@ -395,7 +445,7 @@ results_df['residuals'] = residuals
 results_df
 
 
-# In[31]:
+# In[37]:
 
 
 # Plotting the residuals
@@ -415,7 +465,7 @@ plt.show()
 print("The purpose of this graph is to show where residuals tend to concentrate. Residuals (prediction errors) should concentrate around the X-axis and be uniform.")
 
 
-# In[32]:
+# In[38]:
 
 
 results_df.describe()
@@ -424,7 +474,7 @@ results_df.describe()
 # ### <span style='background: lightgrey'>Linear Regression Assumption 5 of 5: Independence of Observations<span>
 # Check for no autocorrelation of residuals (errors) over time
 
-# In[33]:
+# In[39]:
 
 
 durbinWatson = durbin_watson(residuals)
@@ -441,30 +491,30 @@ else:
     print('Assumption satisfied')
 
 
-# In[34]:
+# In[40]:
 
 
 # Lasso regression
 
-pipeline = Pipeline(steps=[
-    ('scaler', StandardScaler()), # StandardScaler makes the mean of the distribution 0. About 68% of the values will lie be between -1 and 1. Is used to resize the distribution of values ​​so that the mean of the observed values ​​is 0 and the standard deviation is 1.
+pipelineB = Pipeline(steps=[
+    ('scaler', StandardScaler()), # StandardScaler makes the mean of the distribution 0. About 68% of the values will lie be between -1 and 1. Is used to resize the distribution of values so that the mean of the observed values is 0 and the standard deviation is 1.
     ('model', Lasso())
 ])
 
 # IMPORTANT: There is no point in picking alpha = 0 ('model__alpha' = 0), that is simply the linear regression.
-search = GridSearchCV(pipeline,
+search = GridSearchCV(pipelineB,
                       {'model__alpha':np.arange(0.1,10,0.1)}, # test several values from 0.1 to 10 with 0.1 step. For each value, we calculate the average value of the mean squared error in a 5-folds cross-validation and select the value of α that minimizes such average performance metrics
                       cv = 5, scoring="neg_mean_squared_error",verbose=0
 ) # verbose=0, to hide response in next step
 
 
-# In[35]:
+# In[41]:
 
 
 search.fit(X_train,y_train)
 
 
-# In[36]:
+# In[42]:
 
 
 alpha = search.best_params_
